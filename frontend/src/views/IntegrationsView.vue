@@ -79,10 +79,25 @@ const providers = ['openai', 'anthropic']
       </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-200 p-5">
+    <div class="min-w-0 bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
       <h3 class="text-sm font-medium text-gray-700 mb-3">Registered accounts</h3>
       <div v-if="!accounts.accounts.length" class="text-sm text-gray-400">No accounts registered.</div>
-      <table v-else class="w-full text-sm">
+      <template v-else>
+      <ul class="space-y-3 md:hidden" aria-label="Registered accounts">
+        <li v-for="a in accounts.accounts" :key="a.id" class="rounded-lg border border-gray-200 p-3">
+          <div class="flex items-start justify-between gap-3">
+            <h4 class="min-w-0 break-words text-sm font-semibold text-gray-900 dark:text-white [overflow-wrap:anywhere]">{{ a.account_name }}</h4>
+            <span class="shrink-0 rounded-md px-2 py-1 text-xs font-medium" :class="a.is_active ? 'bg-lime-100 text-lime-950 dark:bg-lime-300/15 dark:text-lime-200' : 'bg-gray-100 text-gray-600'">{{ a.is_active ? 'Active' : 'Inactive' }}</span>
+          </div>
+          <dl class="mt-3 grid grid-cols-2 gap-3 text-xs">
+            <div><dt class="text-gray-500">Provider</dt><dd class="mt-1 break-words capitalize text-gray-900 dark:text-gray-100">{{ a.provider }}</dd></div>
+            <div><dt class="text-gray-500">Method</dt><dd class="mt-1 break-words capitalize text-gray-900 dark:text-gray-100">{{ a.collection_method }}</dd></div>
+            <div class="col-span-2"><dt class="text-gray-500">Ownership</dt><dd class="mt-1 capitalize text-gray-900 dark:text-gray-100">{{ a.ownership_type }}</dd></div>
+          </dl>
+        </li>
+      </ul>
+      <div class="hidden overflow-x-auto md:block">
+      <table class="w-full text-sm">
         <thead class="bg-gray-50">
           <tr>
             <th class="th">Name</th>
@@ -106,6 +121,8 @@ const providers = ['openai', 'anthropic']
           </tr>
         </tbody>
       </table>
+      </div>
+      </template>
     </div>
   </div>
 </template>
