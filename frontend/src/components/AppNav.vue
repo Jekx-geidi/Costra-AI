@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { ChartSquareIcon } from '@solar-icons/vue/outline/chart-square'
 import { BillListIcon } from '@solar-icons/vue/outline/bill-list'
 import { UploadIcon } from '@solar-icons/vue/outline/upload'
@@ -9,7 +9,11 @@ import { ChatRoundDotsIcon } from '@solar-icons/vue/outline/chat-round-dots'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
+const props = defineProps({ mobile: Boolean })
+const emit = defineEmits(['navigate'])
 const collapsed = ref(localStorage.getItem('costra-sidebar-collapsed') === 'true')
+const expanded = computed(() => props.mobile || !collapsed.value)
+const linksId = computed(() => props.mobile ? 'mobile-sidebar-links' : 'sidebar-links')
 watch(collapsed, value => localStorage.setItem('costra-sidebar-collapsed', String(value)))
 
 const navItems = [
@@ -24,29 +28,30 @@ const navItems = [
 </script>
 
 <template>
-  <nav aria-label="Main navigation" class="w-[76px] shrink-0 glass-panel m-3 mr-0 rounded-xl flex flex-col py-5 transition-[width] duration-200 motion-reduce:transition-none" :class="collapsed ? 'lg:w-[76px]' : 'lg:w-60'">
+  <nav aria-label="Main navigation" class="shrink-0 glass-panel rounded-xl flex flex-col py-5 transition-[width] duration-200 motion-reduce:transition-none" :class="mobile ? 'w-full min-h-full' : ['w-[76px] m-3 mr-0', collapsed ? 'lg:w-[76px]' : 'lg:w-60']">
     <div class="px-4 mb-7 flex items-center gap-2 overflow-hidden">
-      <button type="button" @click="collapsed = !collapsed" :aria-expanded="!collapsed" aria-controls="sidebar-links" :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'" :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'" class="hidden size-8 shrink-0 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-white/10 lg:flex">
+      <button v-if="!mobile" type="button" @click="collapsed = !collapsed" :aria-expanded="!collapsed" :aria-controls="linksId" :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'" :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'" class="hidden size-8 shrink-0 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-white/10 lg:flex">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-4 transition-transform" :class="{ 'rotate-180': collapsed }" aria-hidden="true"><path d="m14 7-5 5 5 5" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </button>
-      <div class="min-w-0 overflow-hidden" :class="{ 'lg:hidden': collapsed }">
+      <div class="min-w-0 overflow-hidden" :class="{ 'lg:hidden': collapsed && !mobile }">
         <img src="/costra-ai-logo.png" alt="COSTRA AI" class="h-9 w-28 max-w-none object-cover object-left dark:hidden" :class="{ 'lg:w-36 lg:object-contain': !collapsed }" />
         <img src="/costra-ai-logo-dark.png" alt="COSTRA AI" class="hidden h-9 w-28 max-w-none object-cover object-left dark:block" :class="{ 'lg:w-36 lg:object-contain': !collapsed }" />
       </div>
     </div>
-    <ul id="sidebar-links" class="space-y-1 px-2 flex-1">
+    <ul :id="linksId" class="space-y-1 px-2 flex-1">
       <li v-for="item in navItems" :key="item.to">
         <RouterLink
           v-if="auth.canAccess(item.minRole)"
           :to="item.to"
+          @click="emit('navigate')"
           :aria-label="item.name"
           :title="item.name"
           exact-active-class="bg-lime-300 text-lime-950 font-semibold dark:!text-lime-950 dark:hover:!text-lime-950"
-          :class="{ 'lg:justify-start': !collapsed }"
+          :class="mobile ? '!justify-start' : { 'lg:justify-start': !collapsed }"
           class="flex items-center justify-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-[#f1f3ef] hover:text-gray-900 transition-colors dark:text-white dark:hover:bg-white/[0.07] dark:hover:text-white"
         >
           <component :is="item.icon" :size="20" class="shrink-0" />
-          <span v-if="!collapsed" class="hidden lg:inline">{{ item.name }}</span>
+          <span v-if="expanded" :class="mobile ? 'inline' : 'hidden lg:inline'">{{ item.name }}</span>
         </RouterLink>
       </li>
     </ul>
