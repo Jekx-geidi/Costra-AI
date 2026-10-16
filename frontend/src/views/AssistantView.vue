@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { PaperclipIcon } from '@solar-icons/vue/outline/paperclip'
 import { ArrowUpIcon } from '@solar-icons/vue/outline/arrow-up'
 import { FileTextIcon } from '@solar-icons/vue/outline/file-text'
@@ -27,6 +27,24 @@ const input = ref('')
 const busy = ref(false)
 const fileInput = ref(null)
 const scroller = ref(null)
+const confirmDialog = ref(null)
+const confirmation = ref({ title: '', message: '', action: '', destructive: false })
+let resolveConfirmation = null
+
+function askConfirmation(options) {
+  confirmation.value = options
+  return new Promise(resolve => {
+    resolveConfirmation = resolve
+    confirmDialog.value.showModal()
+  })
+}
+function finishConfirmation(accepted = false) {
+  const resolve = resolveConfirmation
+  resolveConfirmation = null
+  confirmDialog.value?.close()
+  resolve?.(accepted)
+}
+onBeforeUnmount(() => finishConfirmation(false))
 
 const suggestions = [
   'What is our total AI spend this month?',
@@ -76,20 +94,24 @@ watch(messages, (value) => {
   nextTick(() => scroller.value?.scrollTo({ top: scroller.value.scrollHeight, behavior: 'smooth' }))
 }, { deep: true, flush: 'sync' })
 
-function canLeaveChat() {
-  return !busy.value && (!messages.value.some(m => m.kind === 'draft') || window.confirm('Leave this invoice preview? You will need to attach it again to continue.'))
+async function canLeaveChat() {
+  if (busy.value) return false
+  if (!messages.value.some(m => m.kind === 'draft')) return true
+  return askConfirmation({ title: 'Leave invoice preview?', message: 'You will need to attach the invoice again to continue reviewing it. Nothing will be imported.', action: 'Leave preview', destructive: false })
 }
 
-function openChat(chat) {
-  if (!canLeaveChat()) return
+async function openChat(chat) {
+  if (!await canLeaveChat()) return
   activeId.value = chat.id
   messages.value = JSON.parse(JSON.stringify(chat.messages))
   input.value = ''
   historyOpen.value = false
 }
 
-function deleteChat(chat) {
-  if (busy.value || !window.confirm(`Delete "${chat.title}" from this browser?`)) return
+async function deleteChat(chat) {
+  if (busy.value) return
+  const accepted = await askConfirmation({ title: 'Delete conversation?', message: `Delete "${chat.title}" from this browser? This cannot be undone.`, action: 'Delete chat', destructive: true })
+  if (!accepted) return
   if (activeId.value === chat.id) {
     activeId.value = null
     messages.value = []
@@ -212,8 +234,8 @@ function discardDraft(msg) {
   })
 }
 
-function clearChat() {
-  if (!canLeaveChat()) return
+async function clearChat() {
+  if (!await canLeaveChat()) return
   activeId.value = null
   messages.value = []
   input.value = ''
@@ -429,4 +451,15 @@ function clearChat() {
       </button>
     </form>
   </div>
+  <dialog ref="confirmDialog" aria-labelledby="chat-confirm-title" aria-describedby="chat-confirm-message"
+    @cancel.prevent="finishConfirmation(false)" @close="finishConfirmation(false)"
+    @click="event => { if (event.target === confirmDialog) finishConfirmation(false) }"
+    class="m-auto w-[calc(100%_-_2rem)] max-w-md rounded-2xl border border-gray-200 bg-white p-6 text-gray-900 shadow-2xl backdrop:bg-black/60 dark:border-white/15 dark:bg-[#152019] dark:text-white">
+    <h2 id="chat-confirm-title" class="text-lg font-semibold">{{ confirmation.title }}</h2>
+    <p id="chat-confirm-message" class="mt-3 break-words text-sm leading-relaxed text-gray-600 dark:text-gray-300">{{ confirmation.message }}</p>
+    <div class="mt-6 flex justify-end gap-3">
+      <button type="button" autofocus @click="finishConfirmation(false)" class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/10">Cancel</button>
+      <button type="button" @click="finishConfirmation(true)" class="rounded-lg px-4 py-2.5 text-sm font-semibold" :class="confirmation.destructive ? 'bg-red-700 text-white hover:bg-red-800' : 'bg-lime-300 text-lime-950 hover:bg-lime-200'">{{ confirmation.action }}</button>
+    </div>
+  </dialog>
 </template>
