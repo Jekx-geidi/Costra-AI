@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "geidi-ai-spend-manager"
+version = "0.1.0"
+description = "GEIDIMCP-102 — Geidi AI Cost Tracking and Billing Integration"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "--tb=short"
+
+[tool.coverage.run]
+source = ["app"]
+# SQLAlchemy async runs ORM code in greenlets; without this those lines show as missed.
+concurrency = ["greenlet", "thread"]
+omit = ["tests/*", "alembic/*"]

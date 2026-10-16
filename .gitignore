@@ -1,0 +1,34 @@
+# Local configuration and secrets
+.env
+.env.*
+*.env
+*.env.*
+!*.env.example
+!.env.example
+*.pem
+*.key
+
+# Dependencies, builds, and caches
+node_modules/
+.venv/
+venv/
+dist/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+coverage/
+*.egg-info/
+
+# Uploaded invoices and runtime data
+backend/storage/
+*.db
+*.sqlite*
+*.log
+
+# Local tools and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-family: "Quicksand", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    color: #17211b;
+    background: #f3f4f1;
+  }
+  body {
+    @apply antialiased;
+    min-width: 320px;
+    background: #f3f4f1;
+  }
+  html[data-theme="dark"] body { background: radial-gradient(circle at 70% -10%, #182c1d 0, transparent 32rem), #0d130f; }
+  button, select, input { @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:ring-offset-2; }
+  /* Edge's built-in reveal/clear buttons would duplicate our Solar eye toggle */
+  input::-ms-reveal, input::-ms-clear { display: none; }
+}
+
+@layer components {
+  .glass-panel { @apply border border-[#e5e8e1] bg-white shadow-[0_10px_28px_rgba(34,43,36,0.06)]; }
+  html[data-theme="dark"] .glass-panel { @apply border-white/10 bg-white/[0.055] shadow-[0_18px_50px_rgba(0,0,0,0.24)]; }
+  .metric-card { @apply glass-panel rounded-xl p-4 transition-[border-color,box-shadow] duration-200 hover:border-[#d6dccf] hover:shadow-[0_12px_30px_rgba(34,43,36,0.08)]; }
+  .soft-input { @apply rounded-lg border border-[#dfe4dc] bg-white px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400; }
+  html[data-theme="dark"] .soft-input { @apply border-white/10 bg-white/[0.06] text-gray-100 placeholder:text-gray-500; }
+}
+
+/* Existing workflow views retain their semantic Tailwind utilities while inheriting the selected theme. */
+html[data-theme="dark"] .bg-white { background-color: #152019; }
+html[data-theme="dark"] .bg-gray-50 { background-color: #111a14; }
+html[data-theme="dark"] .bg-gray-100 { background-color: #1d2920; }
+html[data-theme="dark"] .border-gray-100, html[data-theme="dark"] .border-gray-200, html[data-theme="dark"] .border-gray-300 { border-color: rgba(255, 255, 255, 0.1); }
+html[data-theme="dark"] .text-gray-900, html[data-theme="dark"] .text-gray-800, html[data-theme="dark"] .text-gray-700 { color: #f1f5f1; }
+html[data-theme="dark"] .text-gray-600, html[data-theme="dark"] .text-gray-500 { color: #aab7ac; }
+html[data-theme="dark"] .hover\:bg-gray-50:hover, html[data-theme="dark"] .hover\:bg-gray-100:hover { background-color: rgba(255, 255, 255, 0.07); }
+
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+html[data-theme="light"] .text-gray-400,
+html[data-theme="light"] .text-gray-500 { color: #596579; }
+html[data-theme="light"] nav a[aria-current="page"] { color: #20320c; }
+
+/* Native option popups need opaque surfaces instead of inherited translucent fields. */
+select option, select optgroup {
+  background-color: #ffffff;
+  color: #17211b;
+}
+html[data-theme="dark"] select {
+  background-color: #1d2920;
+  color: #f1f5f1;
+  border-color: #48544b;
+  color-scheme: dark;
+}
+html[data-theme="dark"] select option,
+html[data-theme="dark"] select optgroup {
+  background-color: #1d2920;
+  color: #f1f5f1;
+}
+
+/* Table cell classes contain compiled colors rather than text utility classes. */
+html[data-theme="dark"] .th { color: #c4cec7; }
+html[data-theme="dark"] .td { color: #f1f5f1; }
+html[data-theme="dark"] .td.text-gray-500 { color: #c4cec7; }
+html[data-theme="dark"] tr.bg-brand-50 { background-color: #293c22; }
+html[data-theme="dark"] tr.bg-brand-50:hover { background-color: #334a2a; }
