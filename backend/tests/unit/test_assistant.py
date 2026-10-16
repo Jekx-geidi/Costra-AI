@@ -57,6 +57,8 @@ def test_system_prompt_contains_rules_and_snapshot():
     prompt = build_system_prompt('{"today":"2026-10-16"}', "2026-10-16T00:00:00+00:00")
     assert "Never write code" in prompt
     assert "politely decline" in prompt
+    assert "Always reply in English" in prompt
+    assert "same language" not in prompt
     assert '{"today":"2026-10-16"}' in prompt
 
 

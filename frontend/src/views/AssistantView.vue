@@ -29,10 +29,10 @@ const fileInput = ref(null)
 const scroller = ref(null)
 
 const suggestions = [
-  'Pila ang among total AI spend karong bulana?',
-  'Unsa ang bag-o nga nahitabo sa system?',
-  'Naa bay records nga pending pa ug review?',
-  'Unsa ang status sa OpenAI ug Anthropic integrations?',
+  'What is our total AI spend this month?',
+  'What has happened recently in the system?',
+  'Are any billing records pending review?',
+  'What is the status of our OpenAI and Anthropic integrations?',
 ]
 
 onMounted(async () => {
@@ -144,7 +144,7 @@ async function onFilePicked(event) {
     form.append('file', file)
     const { data } = await assistantApi.readInvoice(form)
     if (!data.is_invoice) {
-      messages.value.push({ kind: 'text', role: 'assistant', content: `Dili invoice ang "${file.name}" sa akong pagbasa, so wala koy gi-import.` })
+      messages.value.push({ kind: 'text', role: 'assistant', content: `"${file.name}" does not appear to be an invoice. Nothing has been imported.` })
       return
     }
     messages.value.push({
@@ -196,7 +196,7 @@ async function confirmDraft(msg) {
     messages.value.splice(index, 1, {
       kind: 'text',
       role: 'assistant',
-      content: `Na-import na ang ${msg.draft.filename}: ${data.records_imported} ka linya, total ${Number(data.total).toFixed(2)} ${data.currency}, sa account nga "${data.account_name}". Naa sila sa Billing Records isip "pending" hangtod ma-review.`,
+      content: `Imported ${msg.draft.filename}: ${data.records_imported} line items totaling ${Number(data.total).toFixed(2)} ${data.currency} into "${data.account_name}". They are listed in Billing Records as pending until reviewed.`,
     })
   } catch (err) {
     msg.error = errorText(err, 'The invoice could not be imported.')
@@ -208,7 +208,7 @@ async function confirmDraft(msg) {
 function discardDraft(msg) {
   const index = messages.value.indexOf(msg)
   messages.value.splice(index, 1, {
-    kind: 'text', role: 'assistant', content: `Wala gi-import ang ${msg.draft.filename}.`,
+    kind: 'text', role: 'assistant', content: `${msg.draft.filename} was not imported.`,
   })
 }
 
@@ -226,8 +226,8 @@ function clearChat() {
       <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-white">Assistant</h1>
         <p class="mt-0.5 text-sm text-gray-500">
-          Pangutana bahin sa COSTRA. Motubag ra siya base sa data nga naa sa system.
-          <span v-if="canImport">I-attach ang invoice ug siya ang mobasa ug mo-input.</span>
+          Ask about COSTRA. Answers are based on the data available in your system.
+          <span v-if="canImport">Attach an invoice to extract and review its billing details.</span>
         </p>
       </div>
       <div class="flex shrink-0 items-center gap-2">
@@ -264,8 +264,8 @@ function clearChat() {
     <div ref="scroller" class="glass-panel flex-1 overflow-y-auto rounded-xl p-4 sm:p-6">
       <div v-if="!messages.length" class="mx-auto flex h-full max-w-xl flex-col items-center justify-center text-center">
         <img src="/favicon.svg" alt="COSTRA assistant" class="size-16 object-contain" />
-        <p class="mt-4 text-sm font-medium text-gray-800 dark:text-gray-100">Unsa ang gusto nimong mahibaw-an?</p>
-        <p class="mt-1 text-xs text-gray-500">Spend, records, imports, integrations, reconciliation, ug unsay nahitabo sa system.</p>
+        <p class="mt-4 text-sm font-medium text-gray-800 dark:text-gray-100">How can I help you today?</p>
+        <p class="mt-1 text-xs text-gray-500">Ask about spend, records, imports, integrations, reconciliation, or recent activity.</p>
         <div class="mt-5 flex flex-wrap justify-center gap-2">
           <button
             v-for="s in suggestions"
@@ -302,7 +302,7 @@ function clearChat() {
 
           <div v-else-if="msg.kind === 'draft'" class="min-w-0 flex-1 max-w-2xl rounded-xl border border-[#e5e8e1] bg-white p-4 text-sm dark:border-white/10 dark:bg-white/[0.06]">
             <p class="text-gray-800 dark:text-gray-100">
-              Nabasa nako ang <span class="font-medium">{{ msg.draft.filename }}</span>. Susiha una sa dili pa i-import:
+              I extracted the details from <span class="font-medium">{{ msg.draft.filename }}</span>. Review them before importing:
             </p>
             <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
               <div><dt class="text-gray-400">Vendor</dt><dd class="text-gray-800 dark:text-gray-100">{{ msg.draft.vendor_name || msg.draft.provider }}</dd></div>
@@ -313,7 +313,7 @@ function clearChat() {
 
             <label class="mt-4 block text-xs font-medium text-gray-600 dark:text-gray-300">Account</label>
             <select v-model="msg.accountId" class="soft-input mt-1 w-full">
-              <option value="" disabled>Pili ug billing account…</option>
+              <option value="" disabled>Select a billing account…</option>
               <option v-for="a in msg.draft.accounts" :key="a.id" :value="a.id">{{ a.name }} ({{ a.provider }})</option>
             </select>
 
@@ -381,7 +381,7 @@ function clearChat() {
                 class="inline-flex h-9 items-center gap-2 rounded-lg bg-lime-300 px-3.5 text-sm font-semibold text-lime-950 hover:bg-lime-200 disabled:opacity-50"
               >
                 <CheckCircleIcon :size="18" />
-                {{ msg.saving ? 'Nag-import…' : `I-import (${msg.items.length})` }}
+                {{ msg.saving ? 'Importing…' : `Import (${msg.items.length})` }}
               </button>
             </div>
           </div>
@@ -415,7 +415,7 @@ function clearChat() {
         @keydown="onKeydown"
         rows="1"
         maxlength="4000"
-        placeholder="Pangutana bahin sa imong AI spend…"
+        placeholder="Ask about your AI spend…"
         aria-label="Message the assistant"
         class="max-h-40 min-h-10 flex-1 resize-none bg-transparent px-2 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none dark:text-gray-100"
       ></textarea>
