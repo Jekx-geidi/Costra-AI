@@ -1,4 +1,7 @@
 <script setup>
+import { ref } from 'vue'
+import ProviderInvoices from './ProviderInvoices.vue'
+const invoices = ref(null)
 defineProps({
   summary: { type: Object, default: null },
   loading: { type: Boolean, default: false },
@@ -23,10 +26,10 @@ function fmt(val, currency = 'USD') {
           {{ summary.data_status }}
         </p>
       </div>
-      <div class="metric-card openai-highlight"><p class="provider-label text-xs mb-2">OpenAI</p><p class="provider-amount text-xl font-semibold tracking-tight">{{ fmt(summary.providers?.openai, summary.currency) }}</p>
-      </div>
-      <div class="metric-card anthropic-highlight"><p class="text-xs text-orange-100 mb-2">Anthropic</p><p class="text-xl font-semibold tracking-tight text-white">{{ fmt(summary.providers?.anthropic, summary.currency) }}</p>
-      </div>
+      <button type="button" @click="invoices.open('openai', summary.period)" aria-haspopup="dialog" aria-label="View OpenAI invoices" class="metric-card openai-highlight text-left"><p class="provider-label text-xs mb-2">OpenAI</p><p class="provider-amount text-xl font-semibold tracking-tight">{{ fmt(summary.providers?.openai, summary.currency) }}</p><span class="provider-label mt-3 block text-xs">View invoices ↗</span>
+      </button>
+      <button type="button" @click="invoices.open('anthropic', summary.period)" aria-haspopup="dialog" aria-label="View Anthropic invoices" class="metric-card anthropic-highlight text-left"><p class="text-xs text-orange-100 mb-2">Anthropic</p><p class="text-xl font-semibold tracking-tight text-white">{{ fmt(summary.providers?.anthropic, summary.currency) }}</p><span class="mt-3 block text-xs text-orange-100">View invoices ↗</span>
+      </button>
       <div class="metric-card"><p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Subscriptions</p><p class="text-xl font-semibold text-gray-900 dark:text-white">{{ fmt(summary.subscription_cost, summary.currency) }}</p>
       </div>
       <div class="metric-card"><p class="text-xs text-gray-500 dark:text-gray-400 mb-2">API Consumption</p><p class="text-xl font-semibold text-gray-900 dark:text-white">{{ fmt(summary.api_consumption_cost, summary.currency) }}</p>
@@ -37,6 +40,7 @@ function fmt(val, currency = 'USD') {
       </div>
     </template>
   </div>
+  <ProviderInvoices ref="invoices" />
 </template>
 
 <style scoped>
