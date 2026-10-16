@@ -16,10 +16,10 @@ function fmt(val, currency = 'USD') {
       <div v-for="i in 6" :key="i" class="metric-card animate-pulse h-28" />
     </template>
     <template v-else-if="summary">
-      <div class="metric-card sm:col-span-2 lg:col-span-1 border-lime-200 bg-[#f8fdec] dark:bg-lime-300/10">
-        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Total AI Spend</p>
-        <p class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">{{ fmt(summary.actual_expense, summary.currency) }}</p>
-        <p class="text-xs mt-2" :class="summary.data_status === 'complete' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600'">
+      <div class="metric-card spend-highlight sm:col-span-2 lg:col-span-1">
+        <p class="text-xs text-lime-100 mb-2">Total AI Spend</p>
+        <p class="text-2xl font-semibold tracking-tight text-white">{{ fmt(summary.actual_expense, summary.currency) }}</p>
+        <p class="inline-flex rounded-md border px-2 py-0.5 text-xs mt-2" :class="summary.data_status === 'complete' ? 'border-lime-200/30 bg-black/20 text-lime-200' : 'border-amber-200/30 bg-black/30 text-amber-200'">
           {{ summary.data_status }}
         </p>
       </div>
@@ -38,3 +38,14 @@ function fmt(val, currency = 'USD') {
     </template>
   </div>
 </template>
+
+<style scoped>
+.metric-card.spend-highlight {
+  background: linear-gradient(130deg, #4d7c0f 0%, #2b4614 48%, #101c10 100%);
+  border-color: rgb(190 242 100 / 40%);
+  box-shadow: 0 8px 24px rgb(34 55 14 / 18%);
+}
+.metric-card.spend-highlight:hover {
+  border-color: #bef264;
+}
+</style>
