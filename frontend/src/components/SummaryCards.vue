@@ -23,9 +23,9 @@ function fmt(val, currency = 'USD') {
           {{ summary.data_status }}
         </p>
       </div>
-      <div class="metric-card"><p class="text-xs text-gray-500 dark:text-gray-400 mb-2">OpenAI</p><p class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">{{ fmt(summary.providers?.openai, summary.currency) }}</p>
+      <div class="metric-card openai-highlight"><p class="provider-label text-xs mb-2">OpenAI</p><p class="provider-amount text-xl font-semibold tracking-tight">{{ fmt(summary.providers?.openai, summary.currency) }}</p>
       </div>
-      <div class="metric-card"><p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Anthropic</p><p class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">{{ fmt(summary.providers?.anthropic, summary.currency) }}</p>
+      <div class="metric-card anthropic-highlight"><p class="text-xs text-orange-100 mb-2">Anthropic</p><p class="text-xl font-semibold tracking-tight text-white">{{ fmt(summary.providers?.anthropic, summary.currency) }}</p>
       </div>
       <div class="metric-card"><p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Subscriptions</p><p class="text-xl font-semibold text-gray-900 dark:text-white">{{ fmt(summary.subscription_cost, summary.currency) }}</p>
       </div>
@@ -48,4 +48,22 @@ function fmt(val, currency = 'USD') {
 .metric-card.spend-highlight:hover {
   border-color: #bef264;
 }
+.metric-card.anthropic-highlight {
+  background: linear-gradient(130deg, #a34e32 0%, #63301f 48%, #241610 100%);
+  border-color: rgb(217 119 87 / 50%);
+  box-shadow: 0 8px 24px rgb(99 48 31 / 18%);
+}
+.metric-card.anthropic-highlight:hover {
+  border-color: #d97757;
+}
+.metric-card.openai-highlight {
+  background: linear-gradient(130deg, #ffffff 0%, #e9eceb 48%, #b9c1be 100%);
+  border-color: #d5dbd8;
+  box-shadow: 0 8px 24px rgb(24 34 29 / 12%);
+}
+.metric-card.openai-highlight:hover {
+  border-color: #8b9891;
+}
+.openai-highlight .provider-label { color: #47534d; }
+.openai-highlight .provider-amount { color: #142019; }
 </style>
