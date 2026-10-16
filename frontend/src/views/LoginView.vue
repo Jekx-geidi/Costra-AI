@@ -26,11 +26,17 @@ async function submit() {
   errorMsg.value = ''
   loading.value = true
   try {
-    await auth.login(email.value, password.value)
+    await auth.login(email.value.trim(), password.value)
     router.push('/')
-  } catch {
-    errorMsg.value = 'Invalid email or password.'
-    password.value = ''
+  } catch (error) {
+    if (error.response?.status === 401) {
+      errorMsg.value = 'Invalid email or password.'
+      password.value = ''
+    } else if (!error.response || error.response.status >= 500) {
+      errorMsg.value = 'Cannot connect to the billing server. Please try again shortly.'
+    } else {
+      errorMsg.value = 'Sign-in could not be completed. Please check your details and try again.'
+    }
   } finally {
     loading.value = false
   }

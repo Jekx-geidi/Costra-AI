@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  // Route dev traffic through Vite so shared ports work on other devices.
+  baseURL: import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE_URL || '/api'),
   headers: { 'Content-Type': 'application/json' },
 })
 
